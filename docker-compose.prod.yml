@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+  prod-api:
+    container_name: prod-api
+    build:
+      context: ./api
+      dockerfile: Dockerfile.prod
+    command: uwsgi --ini uwsgi.ini
+    ports:
+      - 5000:5000
+    restart: always
+    environment:
+      - STAGE=prod
+    env_file:
+      - .env
+    networks:
+      - app-network
+  nginx:
+    image: nginx
+    container_name: nginx
+    restart: always
+    depends_on:
+    - api
+    ports:
+    - "80:80"
+    volumes:
+      - ./nginx/:/etc/nginx/conf.d/
+    networks:
+      - app-network
+  prod-postgres:
+    container_name: prod-postgres
+    image: postgres
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - 5432:5432
+    volumes:
+      - ./prod-db/postgres/data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
