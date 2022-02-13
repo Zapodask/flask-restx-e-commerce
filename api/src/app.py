@@ -1,10 +1,12 @@
 from flask import Flask
-from flask_restx import Resource, Api
+from flask_restx import Api
 from flask_cors import CORS
 from flask_migrate import Migrate
+from flask_jwt_extended import JWTManager
 
 from .models import db
 from .users.namespace import users
+from .auth.namespace import auth
 
 
 app = Flask(__name__)
@@ -14,5 +16,8 @@ api = Api(app)
 
 db.init_app(app)
 migrate = Migrate(app, db)
+jwt = JWTManager(app)
 
+# Namespaces
 api.add_namespace(users)
+api.add_namespace(auth)

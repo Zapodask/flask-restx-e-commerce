@@ -20,7 +20,7 @@ model = users.model(
 )
 
 expect_model = users.clone(
-    "User",
+    "Expect user",
     model,
     {
         "password": fields.String(required=True),

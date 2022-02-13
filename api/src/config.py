@@ -1,4 +1,5 @@
 from os import getenv
+from datetime import timedelta
 
 
 stage = getenv("STAGE")
@@ -12,3 +13,5 @@ class Config(object):
         getenv("DB_NAME"),
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+    SECRET_KEY = getenv("JWT_SECRET_KEY")
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=1)
