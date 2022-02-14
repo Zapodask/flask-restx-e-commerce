@@ -1,9 +1,14 @@
+import os
+
 from flask_restx import Namespace, Resource, fields
-from flask import request
-from flask_jwt_extended import create_access_token, get_jwt_identity
+from flask import render_template, request
+from flask_jwt_extended import create_access_token, get_jwt_identity, decode_token
+from flask_mail import Message
+from datetime import timedelta
 
 from src.models import Users, db
 from src.decorators.auth import auth_verify
+from src.services.mail import mail
 
 
 auth = Namespace("auth", "Auth namespace")
@@ -66,3 +71,46 @@ class ChangePassword(Resource):
         db.session.commit()
 
         return {"message": "Password changed"}, 200
+
+
+@auth.route("/forgot-password")
+class ChangeEmail(Resource):
+    def post(self):
+        req = request.get_json()
+
+        try:
+            user = Users.query.filter_by(email=req["email"]).first()
+
+            msg = Message(
+                subject="Forgot your password?",
+                recipients=[user.email],
+            )
+
+            expires_in = timedelta(minutes=30)
+            token = create_access_token(user.email, expires_delta=expires_in)
+
+            msg.html = render_template(
+                "emails/forgot-password.html",
+                front_url=os.getenv("FRONT_URL"),
+                token=token,
+            )
+
+            mail.send(msg)
+        finally:
+            return {
+                "message": "A recovery email has been sent if the email is registered"
+            }
+
+    def put(self):
+        req = request.get_json()
+
+        email = decode_token(req["token"])["sub"]
+
+        user = Users.query.filter_by(email=email).first()
+
+        if req["new_password"] == req["new_password_confirmation"]:
+            user.password = req["new_password"]
+        else:
+            return {"message": "Invalid new password confirmation"}, 400
+
+        return {"message": "Password changed"}
