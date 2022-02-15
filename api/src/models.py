@@ -13,12 +13,14 @@ class Users(db.Model):
     surname = db.Column(db.String(90), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
+    role = db.Column(db.String, nullable=False)
 
-    def __init__(self, name, surname, email, password):
+    def __init__(self, name, surname, email, password, role="client"):
         self.name = name
         self.surname = surname
         self.email = email
         self.hash_password(password)
+        self.role = role
 
     def format(self):
         return {
@@ -26,6 +28,7 @@ class Users(db.Model):
             "name": self.name,
             "surname": self.surname,
             "email": self.email,
+            "role": self.role,
         }
 
     def hash_password(self, password):

@@ -3,8 +3,9 @@ import sqlalchemy
 from flask_restx import Namespace, Resource, fields
 from flask import request
 
-
 from src.models import Users, db
+from src.decorators.auth import admin_verify
+
 
 users = Namespace("users", "Users namespace")
 
@@ -31,6 +32,7 @@ expect_model = users.clone(
 @users.route("/")
 class Index(Resource):
     @users.doc("List users")
+    @admin_verify(users)
     @users.marshal_list_with(model)
     def get(self):
         response = Users.query.all()
@@ -48,6 +50,7 @@ class Index(Resource):
             surname=req["surname"],
             email=req["email"],
             password=req["password"],
+            role=req["role"],
         )
 
         try:
