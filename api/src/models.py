@@ -40,3 +40,17 @@ class Users(db.Model):
                 return True
         except:
             return False
+
+
+class Products(db.Model):
+    __tablename__ = "products"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False, unique=True)
+    description = db.Column(db.String)
+    price = db.Column(db.Float)
+
+    def __init__(self, name, description=None, price=None):
+        self.name = name
+        self.description = description
+        self.price = price

@@ -9,6 +9,7 @@ from .services.mail import mail
 
 from .users.namespace import users
 from .auth.namespace import auth
+from .products.namespace import products
 
 
 app = Flask(__name__)
@@ -24,3 +25,4 @@ mail.init_app(app)
 # Namespaces
 api.add_namespace(users)
 api.add_namespace(auth)
+api.add_namespace(products)
