@@ -1,7 +1,8 @@
 from flask_restx import Namespace, Resource
 from flask import request
+from src.utils.isBase64 import isBase64
 
-from src.models import Products, db
+from src.models import Products, Images, db
 
 
 products = Namespace("products", "Products namespace")
@@ -23,6 +24,22 @@ class Index(Resource):
             description=req["description"],
             price=req["price"],
         )
+
+        if req["images"] and isinstance(req["images"], list):
+            for img in req["images"]:
+                if isBase64(img["base64"]):
+                    product.images.append(
+                        Images(
+                            name=img["name"],
+                            base64=img["base64"],
+                            product_id=product.id,
+                        )
+                    )
+                else:
+                    return f'{img["name"]} only accepts base64 format', 400
+
+        elif not isinstance(req["images"], list) and type(req["images"]) != None:
+            return "Images has to be a list", 400
 
         db.session.add(product)
         db.session.commit()
@@ -46,8 +63,10 @@ class Id(Resource):
 
         if req["name"]:
             product.name = req["name"]
+
         if req["description"]:
             product.description = req["description"]
+
         if req["price"]:
             product.price = req["price"]
 
