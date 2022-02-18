@@ -32,8 +32,8 @@ expect_model = users.clone(
 @users.route("/")
 class Index(Resource):
     @users.doc("List users")
-    @admin_verify(users)
     @users.marshal_list_with(model)
+    @admin_verify(users)
     def get(self):
         response = Users.query.all()
         users = [res.format() for res in response]
@@ -42,6 +42,7 @@ class Index(Resource):
 
     @users.doc("Create user")
     @users.expect(model)
+    @admin_verify(users)
     def post(self):
         req = request.get_json()
 
@@ -68,12 +69,14 @@ class Index(Resource):
 class Id(Resource):
     @users.doc("Find user")
     @users.marshal_with(model)
+    @admin_verify(users)
     def get(self, id):
         user = Users.query.filter_by(id=id).first()
 
         return user.format()
 
     @users.doc("Update user")
+    @admin_verify(users)
     def put(self, id):
         req = request.get_json()
         user = Users.query.filter_by(id=id).first()
@@ -91,6 +94,7 @@ class Id(Resource):
         return "User updated", 200
 
     @users.doc("Delete user")
+    @admin_verify(users)
     def delete(self, id):
         user = Users.query.filter_by(id=id).first()
 

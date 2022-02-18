@@ -1,5 +1,7 @@
 from flask_restx import Namespace, Resource
 from flask import request
+
+from src.decorators.auth import admin_verify
 from src.utils.isBase64 import isBase64
 
 from src.models import Products, Images, db
@@ -10,12 +12,14 @@ products = Namespace("products", "Products namespace")
 
 @products.route("/")
 class Index(Resource):
+    @admin_verify(products)
     def get(self):
         response = Products.query.all()
-        products = [res.format() for res in response]
+        query_products = [res.format() for res in response]
 
-        return products
+        return query_products
 
+    @admin_verify(products)
     def post(self):
         req = request.get_json()
 
@@ -51,11 +55,13 @@ class Index(Resource):
 @products.param("id", "Product identifier")
 @products.response(404, "Product not found")
 class Id(Resource):
+    @admin_verify(products)
     def get(self, id):
         product = Products.query.filter_by(id=id).first()
 
         return product
 
+    @admin_verify(products)
     def put(self, id):
         req = request.get_json()
 
@@ -75,6 +81,7 @@ class Id(Resource):
 
         return {"message": "Product updated"}
 
+    @admin_verify(products)
     def delete(self, id):
         product = Products.query.filter_by(id=id).first()
 
