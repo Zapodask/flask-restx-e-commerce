@@ -1,9 +1,9 @@
 from flask_restx import Namespace, Resource
 from flask import request
 
-from src.utils.isBase64 import isBase64
+from src.models import Products
 
-from src.models import Products, Images, db
+from src.utils.paginate import paginate
 
 
 products = Namespace("products", "Products namespace")
@@ -12,10 +12,11 @@ products = Namespace("products", "Products namespace")
 @products.route("/")
 class Index(Resource):
     def get(self):
-        response = Products.query.all()
-        query_products = [res.format() for res in response]
+        args = request.args
+        page = args.get("page")
+        per_page = args.get("per_page")
 
-        return query_products
+        return paginate(Products, page, per_page)
 
 
 @products.route("/<int:id>")

@@ -29,7 +29,6 @@ def admin_verify(api):
 
             user = Users.query.filter_by(id=id).first()
 
-            return api.abort(401, str(user))
             if user.role != "admin":
                 return api.abort(401, "You do not have permission to access this page")
 

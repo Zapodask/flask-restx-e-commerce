@@ -1,4 +1,5 @@
 import os
+import sqlalchemy
 
 from flask_restx import Namespace, Resource, fields
 from flask import render_template, request
@@ -29,6 +30,29 @@ expect_change_password_model = auth.model(
         "new_password_confirmation": fields.String(required=True),
     },
 )
+
+
+@auth.route("/register")
+class Register(Resource):
+    @auth.doc("Register")
+    def post(self):
+        req = request.get_json()
+
+        user = Users(
+            name=req["name"],
+            surname=req["surname"],
+            email=req["email"],
+            password=req["password"],
+            role="client",
+        )
+
+        try:
+            db.session.add(user)
+            db.session.commit()
+        except sqlalchemy.exc.IntegrityError:
+            return "Email already exists", 400
+
+        return "User registered", 201
 
 
 @auth.route("/login")

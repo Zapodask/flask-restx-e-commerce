@@ -4,7 +4,9 @@ from flask_restx import Namespace, Resource, fields
 from flask import request
 
 from src.models import Users, db
+
 from src.decorators.auth import admin_verify
+from src.utils.paginate import paginate
 
 
 users = Namespace("users", "Users namespace")
@@ -35,10 +37,11 @@ class Index(Resource):
     @users.marshal_list_with(model)
     @admin_verify(users)
     def get(self):
-        response = Users.query.all()
-        users = [res.format() for res in response]
+        args = request.args
+        page = args.get("page")
+        per_page = args.get("per_page")
 
-        return users
+        return paginate(Users, page, per_page)
 
     @users.doc("Create user")
     @users.expect(model)
