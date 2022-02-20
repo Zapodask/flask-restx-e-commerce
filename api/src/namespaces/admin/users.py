@@ -7,41 +7,31 @@ from src.models import Users, db
 
 from src.decorators.auth import admin_verify
 from src.utils.paginate import paginate
+from src.swagger.users import userSwagger, expectUserSwagger
+from src.swagger.paginate import paginateSwagger
 
 
 users = Namespace("users", "Users namespace")
 
 
-model = users.model(
-    "User",
-    {
-        "id": fields.Integer(readonly=True),
-        "name": fields.String(required=True),
-        "surname": fields.String(required=True),
-        "email": fields.String(required=True),
-    },
-)
+model = userSwagger(users)
 
-expect_model = users.clone(
-    "Expect user",
-    model,
-    {
-        "password": fields.String(required=True),
-    },
-)
+list_model = paginateSwagger(users, model)
+
+expect_model = expectUserSwagger(users)
 
 
 @users.route("/")
 class Index(Resource):
     @users.doc("List users")
-    @users.marshal_list_with(model)
+    @users.marshal_list_with(list_model)
     @admin_verify(users)
     def get(self):
         args = request.args
         page = args.get("page")
         per_page = args.get("per_page")
 
-        return paginate(Users, page, per_page)
+        return paginate(users, Users, page, per_page)
 
     @users.doc("Create user")
     @users.expect(model)

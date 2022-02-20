@@ -49,7 +49,12 @@ class Products(db.Model):
     name = db.Column(db.String(255), nullable=False, unique=True)
     description = db.Column(db.String)
     price = db.Column(db.Float)
-    images = db.relationship("Images", backref="products", lazy="select")
+    images = db.relationship(
+        "Images",
+        backref="products",
+        cascade="all,delete",
+        lazy="select",
+    )
 
     def __init__(self, name, description=None, price=None):
         self.name = name

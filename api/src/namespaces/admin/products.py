@@ -19,7 +19,7 @@ class Index(Resource):
         page = args.get("page")
         per_page = args.get("per_page")
 
-        return paginate(Products, page, per_page)
+        return paginate(products, Products, page, per_page)
 
     @admin_verify(products)
     def post(self):

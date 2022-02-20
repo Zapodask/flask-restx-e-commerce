@@ -72,31 +72,6 @@ class Login(Resource):
         return {"token": access_token}
 
 
-@auth.route("/change-password")
-class ChangePassword(Resource):
-    @auth.doc("Change password")
-    @auth.expect(expect_change_password_model)
-    @auth_verify(auth)
-    def put(self):
-        id = get_jwt_identity()
-        req = request.get_json()
-
-        user = Users.query.filter_by(id=id).first()
-
-        if not user.check_password(req["password"]):
-            return {"message": "Invalid password"}, 400
-
-        if not req["new_password"] == req["new_password_confirmation"]:
-            return {"message": "Invalid new password confirmation"}, 400
-
-        user.hash_password(req["new_password"])
-
-        db.session.add(user)
-        db.session.commit()
-
-        return {"message": "Password changed"}, 200
-
-
 @auth.route("/forgot-password")
 class ForgotPassword(Resource):
     def post(self):
