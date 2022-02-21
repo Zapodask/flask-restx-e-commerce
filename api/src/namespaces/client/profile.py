@@ -6,45 +6,26 @@ from src.models import Users, db
 
 from src.decorators.auth import auth_verify
 from src.utils.findOne import findOne
-
-
-profile = Namespace("profile", "Profile namespace")
-
-model = profile.model(
-    "User",
-    {
-        "id": fields.Integer(),
-        "name": fields.String(),
-        "surname": fields.String(),
-        "email": fields.String(),
-    },
+from src.swagger.users import user_model
+from src.swagger.profile import (
+    expect_update_profile_model,
+    expect_change_password_model,
 )
 
-expect_update_informations_model = profile.model(
-    "Expect change informations",
-    {
-        "name": fields.String(),
-        "surname": fields.String(),
-    },
-)
 
-expect_change_password_model = profile.model(
-    "Expect change password",
-    {
-        "password": fields.String(required=True),
-        "new_password": fields.String(required=True),
-        "new_password_confirmation": fields.String(required=True),
-    },
-)
+profile = Namespace("Profile", "Profile routes", path="/profile")
+
+model = user_model(profile)
+
+expect_update_model = expect_update_profile_model(profile)
+
+expect_change_pass_model = expect_change_password_model(profile)
 
 
 @profile.route("/")
+@profile.response(400, "User not found")
 class Index(Resource):
-    @profile.doc(
-        responses={
-            400: {"User not found"},
-        },
-    )
+    @profile.doc("Get profile")
     @profile.marshal_with(model)
     @auth_verify(profile)
     def get(self):
@@ -54,13 +35,9 @@ class Index(Resource):
 
         return user.format()
 
-    @profile.doc(
-        body=expect_update_informations_model,
-        responses={
-            200: {"Success"},
-            400: {"User not found"},
-        },
-    )
+    @profile.doc("Update informations")
+    @profile.expect(expect_update_model)
+    @profile.response(200, "Success")
     @auth_verify(profile)
     def put(self):
         id = get_jwt_identity()
@@ -82,15 +59,12 @@ class Index(Resource):
 
 @profile.route("/change-password")
 class ChangePassword(Resource):
-    @profile.doc(
-        body=expect_change_password_model,
-        responses={
-            200: {"Success"},
-            400: {"User not found"},
-            400: {"Invalid password"},
-            400: {"New password not match"},
-        },
-    )
+    @profile.doc("Change password")
+    @profile.response(200, "Success")
+    @profile.response(400, "User not found")
+    @profile.response(400, "Invalid password")
+    @profile.response(400, "New password not match")
+    @profile.expect(expect_change_pass_model)
     @auth_verify(profile)
     def put(self):
         id = get_jwt_identity()

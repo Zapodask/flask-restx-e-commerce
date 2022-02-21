@@ -1,35 +1,20 @@
 import os
 import sqlalchemy
 
-from flask_restx import Namespace, Resource, fields
+from flask_restx import Namespace, Resource
 from flask import render_template, request
-from flask_jwt_extended import create_access_token, get_jwt_identity, decode_token
+from flask_jwt_extended import create_access_token, decode_token
 from flask_mail import Message
 from datetime import timedelta
 
 from src.models import Users, db
-from src.decorators.auth import auth_verify
 from src.services.mail import mail
+from src.swagger.auth import expect_login_model
 
 
-auth = Namespace("", "Auth namespace")
+auth = Namespace("Auth", "Auth routes", path="/auth")
 
-expect_login_model = auth.model(
-    "Expect login",
-    {
-        "email": fields.String(required=True),
-        "password": fields.String(required=True),
-    },
-)
-
-expect_change_password_model = auth.model(
-    "Expect change password",
-    {
-        "password": fields.String(required=True),
-        "new_password": fields.String(required=True),
-        "new_password_confirmation": fields.String(required=True),
-    },
-)
+expect_login = expect_login_model(auth)
 
 
 @auth.route("/register")
@@ -58,7 +43,7 @@ class Register(Resource):
 @auth.route("/login")
 class Login(Resource):
     @auth.doc("Login")
-    @auth.expect(expect_login_model)
+    @auth.expect(expect_login)
     def post(self):
         req = request.get_json()
 

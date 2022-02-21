@@ -6,21 +6,22 @@ from src.models import Products
 from src.utils.paginate import paginate
 from src.utils.findOne import findOne
 
-from src.swagger.products import productSwagger
-from src.swagger.paginate import paginateSwagger
+from src.swagger.products import product_model
+from src.swagger.paginate import paginate_model
 
 
-products = Namespace("products", "Products namespace")
+products = Namespace("Products", "Products routes", path="/products")
 
 
-model = productSwagger(products)
+model = product_model(products)
 
-list_model = paginateSwagger(products, model)
+list_model = paginate_model(products, model)
 
 
 @products.route("/")
 class Index(Resource):
-    @products.doc(responses={400: {"Produtos não encontrados"}})
+    @products.doc("Client products")
+    @products.response(400, "Products not found")
     @products.marshal_list_with(list_model)
     def get(self):
         args = request.args

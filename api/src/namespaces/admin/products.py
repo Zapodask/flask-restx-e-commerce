@@ -6,13 +6,20 @@ from src.models import Products, Images, db
 from src.decorators.auth import admin_verify
 from src.utils.isBase64 import isBase64
 from src.utils.paginate import paginate
+from src.swagger.paginate import paginate_model
+from src.swagger.products import product_model
 
 
-products = Namespace("products", "Products namespace")
+products = Namespace("Admin products", "Admin products routes")
+
+model = product_model(products)
+
+list_model = paginate_model(products, model)
 
 
 @products.route("/")
 class Index(Resource):
+    @products.marshal_list_with(list_model)
     @admin_verify(products)
     def get(self):
         args = request.args
@@ -21,6 +28,7 @@ class Index(Resource):
 
         return paginate(products, Products, page, per_page)
 
+    @products.expect(model)
     @admin_verify(products)
     def post(self):
         req = request.get_json()
@@ -57,6 +65,7 @@ class Index(Resource):
 @products.param("id", "Product identifier")
 @products.response(404, "Product not found")
 class Id(Resource):
+    @products.marshal_with(model)
     @admin_verify(products)
     def get(self, id):
         product = Products.query.filter_by(id=id).first()

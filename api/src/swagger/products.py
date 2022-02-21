@@ -1,7 +1,7 @@
 from flask_restx import fields, Namespace
 
 
-def productSwagger(ns: Namespace):
+def product_model(ns: Namespace):
     return ns.model(
         "Product",
         {
@@ -9,12 +9,12 @@ def productSwagger(ns: Namespace):
             "name": fields.String(),
             "description": fields.String(),
             "price": fields.Float(),
-            "images": fields.List(fields.Nested(imageSwagger(ns))),
+            "images": fields.List(fields.Nested(image_model(ns))),
         },
     )
 
 
-def imageSwagger(ns: Namespace):
+def image_model(ns: Namespace):
     return ns.model(
         "Image",
         {

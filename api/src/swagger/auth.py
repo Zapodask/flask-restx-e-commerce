@@ -1,18 +1,18 @@
 from flask_restx import fields, Namespace
 
 
-def expect_update_profile_model(ns: Namespace):
-    return ns.model(
-        "Expect update profile",
+def expect_login_model(ns: Namespace):
+    ns.model(
+        "Expect login",
         {
-            "name": fields.String(),
-            "surname": fields.String(),
+            "email": fields.String(required=True),
+            "password": fields.String(required=True),
         },
     )
 
 
 def expect_change_password_model(ns: Namespace):
-    return ns.model(
+    ns.model(
         "Expect change password",
         {
             "password": fields.String(required=True),

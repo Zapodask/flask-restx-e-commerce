@@ -1,7 +1,7 @@
 from flask_restx import fields, Namespace
 
 
-def userSwagger(ns: Namespace):
+def user_model(ns: Namespace):
     return ns.model(
         "User",
         {
@@ -13,10 +13,10 @@ def userSwagger(ns: Namespace):
     )
 
 
-def expectUserSwagger(ns: Namespace):
+def expect_user_model(ns: Namespace):
     return ns.clone(
         "Expect user",
-        userSwagger(ns),
+        user_model(ns),
         {
             "password": fields.String(required=True),
         },

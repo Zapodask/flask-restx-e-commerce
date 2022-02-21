@@ -7,22 +7,27 @@ from flask_jwt_extended import JWTManager
 from .models import db
 from .services.mail import mail
 
-from .namespaces.client import blueprint as client
-from .namespaces.admin import blueprint as admin
-from .namespaces.auth import blueprint as auth
+from .namespaces.client import clientNamespaces
+from .namespaces.auth import authNamespaces
+from .namespaces.admin import adminNamespaces
 
 
 app = Flask(__name__)
 app.config.from_object("src.config.Config")
 CORS(app)
-api = Api(app)
+api = Api(app, doc="/swagger")
 
 db.init_app(app)
 migrate = Migrate(app, db)
 jwt = JWTManager(app)
 mail.init_app(app)
 
-# Blueprints
-app.register_blueprint(client)
-app.register_blueprint(auth, url_prefix="/auth")
-app.register_blueprint(admin, url_prefix="/admin")
+# Namespaces
+## Client
+clientNamespaces(api)
+
+## Auth
+authNamespaces(api)
+
+## Admin
+adminNamespaces(api)

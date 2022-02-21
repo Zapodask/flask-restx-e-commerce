@@ -7,18 +7,18 @@ from src.models import Users, db
 
 from src.decorators.auth import admin_verify
 from src.utils.paginate import paginate
-from src.swagger.users import userSwagger, expectUserSwagger
-from src.swagger.paginate import paginateSwagger
+from src.swagger.users import user_model, expect_user_model
+from src.swagger.paginate import paginate_model
 
 
-users = Namespace("users", "Users namespace")
+users = Namespace("Admin users", "Admin users routes")
 
 
-model = userSwagger(users)
+model = user_model(users)
 
-list_model = paginateSwagger(users, model)
+list_model = paginate_model(users, model)
 
-expect_model = expectUserSwagger(users)
+expect_model = expect_user_model(users)
 
 
 @users.route("/")

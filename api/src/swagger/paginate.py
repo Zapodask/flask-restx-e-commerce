@@ -1,7 +1,7 @@
 from flask_restx import fields, Namespace
 
 
-def paginateSwagger(ns: Namespace, model):
+def paginate_model(ns: Namespace, model):
     return ns.model(
         "Paginated items",
         {
