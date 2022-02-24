@@ -72,6 +72,7 @@ class Start:
         os.chdir("./api")
 
         os.system("flask db migrate")
+
         os.system("flask db upgrade")
 
         os.chdir("..")

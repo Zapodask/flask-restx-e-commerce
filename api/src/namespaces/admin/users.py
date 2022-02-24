@@ -3,7 +3,7 @@ import sqlalchemy
 from flask_restx import Namespace, Resource, fields
 from flask import request
 
-from src.models import Users, db
+from src.models import User, db
 
 from src.decorators.auth import admin_verify
 from src.utils.paginate import paginate
@@ -31,7 +31,7 @@ class Index(Resource):
         page = args.get("page")
         per_page = args.get("per_page")
 
-        return paginate(users, Users, page, per_page)
+        return paginate(User, page, per_page)
 
     @users.doc("Create user")
     @users.expect(model)
@@ -39,7 +39,7 @@ class Index(Resource):
     def post(self):
         req = request.get_json()
 
-        user = Users(
+        user = User(
             name=req["name"],
             surname=req["surname"],
             email=req["email"],
@@ -64,7 +64,7 @@ class Id(Resource):
     @users.marshal_with(model)
     @admin_verify(users)
     def get(self, id):
-        user = Users.query.filter_by(id=id).first()
+        user = User.query.filter_by(id=id).first()
 
         return user.format()
 
@@ -72,7 +72,7 @@ class Id(Resource):
     @admin_verify(users)
     def put(self, id):
         req = request.get_json()
-        user = Users.query.filter_by(id=id).first()
+        user = User.query.filter_by(id=id).first()
 
         if "name" in req:
             user.name = req["name"]
@@ -89,7 +89,7 @@ class Id(Resource):
     @users.doc("Delete user")
     @admin_verify(users)
     def delete(self, id):
-        user = Users.query.filter_by(id=id).first()
+        user = User.query.filter_by(id=id).first()
 
         db.session.delete(user)
         db.session.commit()

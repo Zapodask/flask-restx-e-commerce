@@ -1,4 +1,4 @@
-# Docker flask-restx
+# Flask-restx e-commerce
 
 ## Tecnologias utilizadas
 

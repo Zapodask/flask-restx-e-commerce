@@ -1,7 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from flask import request
 
-from src.models import Products
+from src.models import Product
 
 from src.utils.paginate import paginate
 from src.utils.findOne import findOne
@@ -20,23 +20,23 @@ list_model = paginate_model(products, model)
 
 @products.route("/")
 class Index(Resource):
-    @products.doc("Client products")
-    @products.response(400, "Products not found")
+    @products.doc("List products")
+    @products.response(404, "Products not found")
     @products.marshal_list_with(list_model)
     def get(self):
         args = request.args
         page = args.get("page")
         per_page = args.get("per_page")
 
-        return paginate(products, Products, page, per_page)
+        return paginate(Product, page, per_page)
 
 
 @products.route("/<int:id>")
 @products.param("id", "Product identifier")
-@products.response(400, "Product not found")
 class Id(Resource):
-    @products.doc()
+    @products.doc("Get product")
+    @products.response(404, "Product not found")
     def get(self, id):
-        product = findOne(products, Products, id)
+        product = findOne(Product, id)
 
         return product.format()

@@ -1,7 +1,7 @@
 from flask_restx import Namespace, Resource
 from flask import request
 
-from src.models import Products, Images, db
+from src.models import Product, Image, db
 
 from src.decorators.auth import admin_verify
 from src.utils.isBase64 import isBase64
@@ -26,14 +26,14 @@ class Index(Resource):
         page = args.get("page")
         per_page = args.get("per_page")
 
-        return paginate(products, Products, page, per_page)
+        return paginate(Product, page, per_page)
 
     @products.expect(model)
     @admin_verify(products)
     def post(self):
         req = request.get_json()
 
-        product = Products(
+        product = Product(
             name=req["name"],
             description=req["description"],
             price=req["price"],
@@ -43,7 +43,7 @@ class Index(Resource):
             for img in req["images"]:
                 if isBase64(img["base64"]):
                     product.images.append(
-                        Images(
+                        Image(
                             name=img["name"],
                             base64=img["base64"],
                             product_id=product.id,
@@ -68,7 +68,7 @@ class Id(Resource):
     @products.marshal_with(model)
     @admin_verify(products)
     def get(self, id):
-        product = Products.query.filter_by(id=id).first()
+        product = Product.query.filter_by(id=id).first()
 
         return product
 
@@ -76,7 +76,7 @@ class Id(Resource):
     def put(self, id):
         req = request.get_json()
 
-        product = Products.query.filter_by(id=id).first()
+        product = Product.query.filter_by(id=id).first()
 
         if req["name"]:
             product.name = req["name"]
@@ -94,7 +94,7 @@ class Id(Resource):
 
     @admin_verify(products)
     def delete(self, id):
-        product = Products.query.filter_by(id=id).first()
+        product = Product.query.filter_by(id=id).first()
 
         db.session.delete(product)
         db.session.commit()

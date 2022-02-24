@@ -7,7 +7,7 @@ from flask_jwt_extended import create_access_token, decode_token
 from flask_mail import Message
 from datetime import timedelta
 
-from src.models import Users, db
+from src.models import User, db
 from src.services.mail import mail
 from src.swagger.auth import expect_login_model
 
@@ -23,7 +23,7 @@ class Register(Resource):
     def post(self):
         req = request.get_json()
 
-        user = Users(
+        user = User(
             name=req["name"],
             surname=req["surname"],
             email=req["email"],
@@ -47,7 +47,7 @@ class Login(Resource):
     def post(self):
         req = request.get_json()
 
-        user = Users.query.filter_by(email=req["email"]).first()
+        user = User.query.filter_by(email=req["email"]).first()
 
         if not user.check_password(req["password"]):
             return {"message": "Invalid email or password"}, 401
@@ -63,7 +63,7 @@ class ForgotPassword(Resource):
         req = request.get_json()
 
         try:
-            user = Users.query.filter_by(email=req["email"]).first()
+            user = User.query.filter_by(email=req["email"]).first()
 
             msg = Message(
                 subject="Forgot your password?",
@@ -90,7 +90,7 @@ class ForgotPassword(Resource):
 
         email = decode_token(req["token"])["sub"]
 
-        user = Users.query.filter_by(email=email).first()
+        user = User.query.filter_by(email=email).first()
 
         if req["new_password"] == req["new_password_confirmation"]:
             user.password = req["new_password"]
