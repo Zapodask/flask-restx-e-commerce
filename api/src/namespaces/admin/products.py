@@ -34,9 +34,10 @@ class Index(Resource):
         req = request.get_json()
 
         product = Product(
-            name=req["name"],
-            description=req["description"],
-            price=req["price"],
+            name=req.get("name"),
+            description=req.get("description"),
+            price=req.get("price"),
+            stock=req.get("stock"),
         )
 
         if req["images"] and isinstance(req["images"], list):
@@ -67,24 +68,24 @@ class Index(Resource):
 class Id(Resource):
     @products.marshal_with(model)
     @admin_verify(products)
-    def get(self, id):
+    def get(self, id: int):
         product = Product.query.filter_by(id=id).first()
 
-        return product
+        return product.format()
 
     @admin_verify(products)
-    def put(self, id):
+    def put(self, id: int):
         req = request.get_json()
 
         product = Product.query.filter_by(id=id).first()
 
-        if req["name"]:
+        if req.get("name"):
             product.name = req["name"]
 
-        if req["description"]:
+        if req.get("description"):
             product.description = req["description"]
 
-        if req["price"]:
+        if req.get("price"):
             product.price = req["price"]
 
         db.session.add(product)
@@ -93,7 +94,7 @@ class Id(Resource):
         return {"message": "Product updated"}
 
     @admin_verify(products)
-    def delete(self, id):
+    def delete(self, id: int):
         product = Product.query.filter_by(id=id).first()
 
         db.session.delete(product)

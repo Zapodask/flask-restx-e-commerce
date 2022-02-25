@@ -9,6 +9,7 @@ def product_model(ns: Namespace):
             "name": fields.String(),
             "description": fields.String(),
             "price": fields.Float(),
+            "stock": fields.Integer(),
             "images": fields.List(fields.Nested(image_model(ns))),
         },
     )

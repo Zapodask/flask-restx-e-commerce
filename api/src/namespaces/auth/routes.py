@@ -9,10 +9,12 @@ from datetime import timedelta
 
 from src.models import User, db
 from src.services.mail import mail
-from src.swagger.auth import expect_login_model
+from src.swagger.auth import expect_register_model, expect_login_model
 
 
 auth = Namespace("Auth", "Auth routes", path="/auth")
+
+expect_register = expect_register_model(auth)
 
 expect_login = expect_login_model(auth)
 
@@ -20,15 +22,15 @@ expect_login = expect_login_model(auth)
 @auth.route("/register")
 class Register(Resource):
     @auth.doc("Register")
+    @auth.expect(expect_register)
     def post(self):
         req = request.get_json()
 
         user = User(
-            name=req["name"],
-            surname=req["surname"],
-            email=req["email"],
-            password=req["password"],
-            role="client",
+            name=req.get("name"),
+            surname=req.get("surname"),
+            email=req.get("email"),
+            password=req.get("password"),
         )
 
         try:
@@ -36,6 +38,8 @@ class Register(Resource):
             db.session.commit()
         except sqlalchemy.exc.IntegrityError:
             return "Email already exists", 400
+        except Exception as e:
+            return e, 400
 
         return "User registered", 201
 

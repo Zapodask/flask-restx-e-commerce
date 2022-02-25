@@ -1,3 +1,4 @@
+from flask_restx import abort
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -21,7 +22,14 @@ class User(db.Model):
         lazy="dynamic",
     )
 
-    def __init__(self, name, surname, email, password, role="client"):
+    def __init__(
+        self,
+        name: str,
+        surname: str,
+        email: str,
+        password: str,
+        role: str = "client",
+    ):
         self.name = name
         self.surname = surname
         self.email = email
@@ -70,11 +78,17 @@ class Product(db.Model):
         lazy="select",
     )
 
-    def __init__(self, name, description=None, price=None):
+    def __init__(
+        self,
+        name: str,
+        description: str = None,
+        price: float = None,
+        stock: int = 0,
+    ):
         self.name = name
         self.description = description
         self.price = price
-        self.stock = 0
+        self.stock = stock
 
     def format(self):
         imgs = []
@@ -92,6 +106,7 @@ class Product(db.Model):
             "name": self.name,
             "description": self.description,
             "price": self.price,
+            "stock": self.stock,
             "images": imgs,
         }
 
@@ -104,7 +119,7 @@ class Image(db.Model):
     base64 = db.Column(db.String, nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey("product.id"))
 
-    def __init__(self, name, base64, product_id):
+    def __init__(self, name: str, base64: str, product_id: int):
         self.name = name
         self.base64 = base64
         self.product_id = product_id
@@ -155,6 +170,9 @@ class Order(db.Model):
 
             self.products.append(order_product)
 
+        for item in self.products:
+            item.product.stock -= item.quantity
+
         self.total = total
 
     def format(self):
@@ -179,6 +197,15 @@ class OrderProduct(db.Model):
         self.quantity = quantity
 
         product = Product.query.filter_by(id=product_id).first()
+
+        if quantity <= 0:
+            abort(
+                400,
+                f"The quantity of the product id {product_id} must be greater than 0",
+            )
+
+        if product.stock - quantity < 0:
+            abort(400, f"Product id {product_id} has only {product.stock}")
 
         self.product = product
 
