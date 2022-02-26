@@ -1,11 +1,11 @@
 from flask_restx import abort
 
 
-def paginate(model, page: str = None, per_page: str = None):
+def paginate(query, page: str = None, per_page: str = None):
     page = page or 1
     per_page = per_page or 10
 
-    response = model.query.paginate(int(page), int(per_page))
+    response = query.paginate(int(page), int(per_page))
 
     if response.items == []:
         return abort(404, "No items were found")

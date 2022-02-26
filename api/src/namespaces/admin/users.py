@@ -31,7 +31,7 @@ class Index(Resource):
         page = args.get("page")
         per_page = args.get("per_page")
 
-        return paginate(User, page, per_page)
+        return paginate(User.query, page, per_page)
 
     @users.doc("Create user")
     @users.expect(model)

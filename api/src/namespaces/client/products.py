@@ -28,7 +28,7 @@ class Index(Resource):
         page = args.get("page")
         per_page = args.get("per_page")
 
-        return paginate(Product, page, per_page)
+        return paginate(Product.query, page, per_page)
 
 
 @products.route("/<int:id>")

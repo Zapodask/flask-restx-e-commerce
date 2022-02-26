@@ -45,3 +45,12 @@ def expect_order_products_model(ns: Namespace):
             "quantity": fields.Integer(),
         },
     )
+
+
+def expect_order_client_model(ns: Namespace):
+    return ns.model(
+        "Expect order client",
+        {
+            "products": fields.List(fields.Nested(expect_order_products_model(ns))),
+        },
+    )
