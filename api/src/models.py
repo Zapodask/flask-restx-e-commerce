@@ -22,6 +22,12 @@ class User(db.Model):
         lazy="dynamic",
     )
 
+    adresses = db.relationship(
+        "Address",
+        backref="user",
+        lazy="dynamic",
+    )
+
     def __init__(
         self,
         name: str,
@@ -150,6 +156,8 @@ class Order(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
+    address_id = db.Column(db.Integer, db.ForeignKey("address.id"))
+
     products = db.relationship(
         "OrderProduct",
         secondary=order_product_relationship,
@@ -217,4 +225,55 @@ class OrderProduct(db.Model):
             "quantity": self.quantity,
             "subtotal": self.subtotal,
             "product": self.product.format(),
+        }
+
+
+class Address(db.Model):
+    __tablename__ = "address"
+
+    id = db.Column(db.Integer, primary_key=True)
+    cep = db.Column(db.String(9), nullable=False)
+    state = db.Column(db.String, nullable=False)
+    city = db.Column(db.String, nullable=False)
+    neighborhood = db.Column(db.String, nullable=False)
+    street = db.Column(db.String, nullable=False)
+    number = db.Column(db.Integer, nullable=False)
+    complement = db.Column(db.String)
+
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+
+    orders = db.relationship(
+        "Order",
+        backref="address",
+        lazy="dynamic",
+    )
+
+    def __init__(
+        self,
+        cep: str,
+        state: str,
+        city: str,
+        neighborhood: str,
+        street: str,
+        number: int,
+        complement: str = None,
+    ):
+        self.cep = cep
+        self.state = state
+        self.city = city
+        self.neighborhood = neighborhood
+        self.street = street
+        self.number = number
+        self.complement = complement
+
+    def format(self):
+        return {
+            "id": self.id,
+            "cep": self.cep,
+            "state": self.state,
+            "city": self.city,
+            "neighborhood": self.neighborhood,
+            "street": self.street,
+            "number": self.number,
+            "complement": self.complement,
         }
