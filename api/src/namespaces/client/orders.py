@@ -5,7 +5,6 @@ from flask_jwt_extended import get_jwt_identity
 from src.models import Order, db
 
 from src.utils.paginate import paginate
-from src.utils.findOne import findOne
 from src.decorators.auth import auth_verify
 from src.swagger.orders import order_model, expect_order_client_model
 from src.swagger.paginate import paginate_model

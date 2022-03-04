@@ -1,5 +1,5 @@
 from flask import request
-from flask_restx import Namespace, Resource, fields
+from flask_restx import Namespace, Resource
 from flask_jwt_extended import get_jwt_identity
 
 from src.models import User, db

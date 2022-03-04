@@ -19,13 +19,13 @@ class User(db.Model):
     orders = db.relationship(
         "Order",
         backref="user",
-        lazy="dynamic",
+        lazy="subquery",
     )
 
-    adresses = db.relationship(
+    addresses = db.relationship(
         "Address",
         backref="user",
-        lazy="dynamic",
+        lazy="subquery",
     )
 
     def __init__(
@@ -250,6 +250,7 @@ class Address(db.Model):
 
     def __init__(
         self,
+        user_id: str,
         cep: str,
         state: str,
         city: str,
@@ -258,6 +259,7 @@ class Address(db.Model):
         number: int,
         complement: str = None,
     ):
+        self.user_id = user_id
         self.cep = cep
         self.state = state
         self.city = city
