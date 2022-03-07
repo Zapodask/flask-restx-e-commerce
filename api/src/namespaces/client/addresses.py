@@ -6,13 +6,22 @@ from src.models import Address, db
 
 from src.decorators.auth import auth_verify
 from src.utils.paginate import paginate
+from src.swagger.addresses import address_model
+from src.swagger.paginate import paginate_model
 
 
 addresses = Namespace("Addresses", "Addresses routes", path="/addresses")
 
+model = address_model(addresses)
+
+list_model = paginate_model(addresses, model)
+
 
 @addresses.route("/")
 class Index(Resource):
+    @addresses.doc("List addresses")
+    @addresses.marshal_list_with(list_model)
+    @addresses.response(404, "No addresses were found")
     @auth_verify(addresses)
     def get(self):
         """Find all user addresses"""
@@ -24,8 +33,11 @@ class Index(Resource):
 
         return paginate(Address.query.filter_by(user_id=user_id), page, per_page)
 
+    @addresses.doc("Create address")
+    @addresses.expect(model)
     @auth_verify(addresses)
     def post(self):
+        """Create a new address"""
         user_id = get_jwt_identity()
 
         req = request.get_json()
@@ -51,14 +63,21 @@ class Index(Resource):
 @addresses.param("id", "Address identifier")
 @addresses.response(404, "Address not found")
 class Id(Resource):
+    @addresses.doc("Find one address")
+    @addresses.marshal_with(model)
+    @auth_verify(addresses)
     def get(self, id):
+        """Find one address"""
         user_id = get_jwt_identity()
 
         return Address.query.filter_by(id=id, user_id=user_id).first_or_404(
             description=f"Address not found"
         )
 
+    @addresses.doc("Update address")
+    @auth_verify(addresses)
     def put(self, id):
+        """Update address"""
         user_id = get_jwt_identity()
 
         req = request.get_json()
@@ -93,7 +112,10 @@ class Id(Resource):
 
         return {"message": "Address updated"}
 
+    @addresses.doc("Delete address")
+    @auth_verify(addresses)
     def delete(self, id):
+        """Delete address"""
         user_id = get_jwt_identity()
 
         address = Address.query.filter_by(id=id, user_id=user_id).first_or_404(

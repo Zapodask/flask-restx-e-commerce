@@ -166,8 +166,14 @@ class Order(db.Model):
         backref=db.backref("order", lazy=True),
     )
 
-    def __init__(self, user_id: int, products: list):
+    def __init__(self, user_id: int, address_id: int, products: list):
         self.user_id = user_id
+
+        Address.query.filter_by(id=address_id, user_id=user_id).first_or_404(
+            description=f"Address not found"
+        )
+
+        self.address_id = address_id
 
         total = 0
 
@@ -188,6 +194,7 @@ class Order(db.Model):
             "id": self.id,
             "total": self.total,
             "user_id": self.user_id,
+            "address": self.address.format(),
             "products": [i.format() for i in self.products],
         }
 
@@ -196,10 +203,10 @@ class OrderProduct(db.Model):
     __tablename__ = "order_product"
 
     id = db.Column(db.Integer, primary_key=True)
-    quantity = db.Column(db.Integer)
-    subtotal = db.Column(db.Float)
+    quantity = db.Column(db.Integer, nullable=False)
+    subtotal = db.Column(db.Float, nullable=False)
 
-    product_id = db.Column(db.Integer, db.ForeignKey("product.id"))
+    product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
 
     def __init__(self, quantity: int, product_id: int):
         self.quantity = quantity

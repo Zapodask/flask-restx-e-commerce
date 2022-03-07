@@ -47,6 +47,7 @@ class Index(Resource):
 
         order = Order(
             user_id=user_id,
+            address_id=req.get("address_id"),
             products=req.get("products"),
         )
 
