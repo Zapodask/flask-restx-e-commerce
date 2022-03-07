@@ -6,13 +6,13 @@ from src.models import Address, db
 
 from src.decorators.auth import auth_verify
 from src.utils.paginate import paginate
-from src.swagger.addresses import address_model
+from src.swagger.addresses import marshall_address_model
 from src.swagger.paginate import paginate_model
 
 
 addresses = Namespace("Addresses", "Addresses routes", path="/addresses")
 
-model = address_model(addresses)
+model = marshall_address_model(addresses)
 
 list_model = paginate_model(addresses, model)
 

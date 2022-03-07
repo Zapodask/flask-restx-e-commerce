@@ -6,7 +6,7 @@ from src.models import Order, db
 
 from src.utils.paginate import paginate
 from src.decorators.auth import auth_verify
-from src.swagger.orders import order_model, expect_order_client_model
+from src.swagger.orders import order_model, expect_order_model
 from src.swagger.paginate import paginate_model
 
 
@@ -17,7 +17,7 @@ model = order_model(orders)
 
 list_model = paginate_model(orders, model)
 
-expect_order = expect_order_client_model(orders)
+expect_order = expect_order_model(orders)
 
 
 @orders.route("/")

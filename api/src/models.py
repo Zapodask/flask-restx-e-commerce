@@ -178,7 +178,7 @@ class Order(db.Model):
         total = 0
 
         for product in products:
-            order_product = OrderProduct(product["quantity"], product["id"])
+            order_product = OrderProduct(product["quantity"], product["product_id"])
 
             total += order_product.subtotal
 

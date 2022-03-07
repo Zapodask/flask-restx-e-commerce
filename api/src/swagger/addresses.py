@@ -1,5 +1,7 @@
 from flask_restx import fields, Namespace
 
+from . import add_id_to_model
+
 
 def address_model(ns: Namespace):
     return ns.model(
@@ -15,3 +17,7 @@ def address_model(ns: Namespace):
             "complement": fields.String(),
         },
     )
+
+
+def marshall_address_model(ns: Namespace):
+    return add_id_to_model(ns, address_model(ns))

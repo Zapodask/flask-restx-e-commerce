@@ -1,12 +1,13 @@
 from flask_restx import fields, Namespace
 
+from . import add_id_to_model
+
 
 def product_model(ns: Namespace):
     return ns.model(
         "Product",
         {
-            "id": fields.Integer(),
-            "name": fields.String(),
+            "name": fields.String(required=True),
             "description": fields.String(),
             "price": fields.Float(),
             "stock": fields.Integer(),
@@ -23,3 +24,7 @@ def image_model(ns: Namespace):
             "base64": fields.String(),
         },
     )
+
+
+def marshal_product_model(ns: Namespace):
+    return add_id_to_model(ns, product_model(ns))

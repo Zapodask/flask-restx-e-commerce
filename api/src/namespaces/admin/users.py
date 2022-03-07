@@ -7,14 +7,14 @@ from src.models import User, db
 
 from src.decorators.auth import admin_verify
 from src.utils.paginate import paginate
-from src.swagger.users import user_model, expect_user_model
+from src.swagger.users import marshal_user_model, expect_user_model
 from src.swagger.paginate import paginate_model
 
 
 users = Namespace("Admin users", "Admin users routes")
 
 
-model = user_model(users)
+model = marshal_user_model(users)
 
 list_model = paginate_model(users, model)
 
@@ -34,7 +34,7 @@ class Index(Resource):
         return paginate(User.query, page, per_page)
 
     @users.doc("Create user")
-    @users.expect(model)
+    @users.expect(expect_model)
     @admin_verify(users)
     def post(self):
         req = request.get_json()

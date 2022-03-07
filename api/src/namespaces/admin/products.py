@@ -7,12 +7,12 @@ from src.decorators.auth import admin_verify
 from src.utils.isBase64 import isBase64
 from src.utils.paginate import paginate
 from src.swagger.paginate import paginate_model
-from src.swagger.products import product_model
+from src.swagger.products import marshal_product_model
 
 
 products = Namespace("Admin products", "Admin products routes")
 
-model = product_model(products)
+model = marshal_product_model(products)
 
 list_model = paginate_model(products, model)
 

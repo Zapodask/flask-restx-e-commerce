@@ -6,14 +6,14 @@ from src.models import Product
 from src.utils.paginate import paginate
 from src.utils.findOne import findOne
 
-from src.swagger.products import product_model
+from src.swagger.products import marshal_product_model
 from src.swagger.paginate import paginate_model
 
 
 products = Namespace("Products", "Products routes", path="/products")
 
 
-model = product_model(products)
+model = marshal_product_model(products)
 
 list_model = paginate_model(products, model)
 

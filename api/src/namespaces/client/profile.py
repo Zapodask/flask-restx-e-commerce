@@ -6,7 +6,7 @@ from src.models import User, db
 
 from src.decorators.auth import auth_verify
 from src.utils.findOne import findOne
-from src.swagger.users import user_model
+from src.swagger.users import marshal_user_model
 from src.swagger.profile import (
     expect_update_profile_model,
     expect_change_password_model,
@@ -15,7 +15,7 @@ from src.swagger.profile import (
 
 profile = Namespace("Profile", "Profile routes", path="/profile")
 
-model = user_model(profile)
+model = marshal_user_model(profile)
 
 expect_update = expect_update_profile_model(profile)
 
