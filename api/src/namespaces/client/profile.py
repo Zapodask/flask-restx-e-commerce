@@ -15,6 +15,7 @@ from src.swagger.profile import (
 
 profile = Namespace("Profile", "Profile routes", path="/profile")
 
+
 model = marshal_user_model(profile)
 
 expect_update = expect_update_profile_model(profile)

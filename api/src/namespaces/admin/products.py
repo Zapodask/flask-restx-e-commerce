@@ -12,6 +12,7 @@ from src.swagger.products import marshal_product_model
 
 products = Namespace("Admin products", "Admin products routes")
 
+
 model = marshal_product_model(products)
 
 list_model = paginate_model(products, model)
@@ -19,6 +20,8 @@ list_model = paginate_model(products, model)
 
 @products.route("/")
 class Index(Resource):
+    @products.doc("List products")
+    @products.response(404, "Products not found")
     @products.marshal_list_with(list_model)
     @admin_verify(products)
     def get(self):
@@ -28,6 +31,7 @@ class Index(Resource):
 
         return paginate(Product.query, page, per_page)
 
+    @products.doc("Create product")
     @products.expect(model)
     @admin_verify(products)
     def post(self):
@@ -66,6 +70,7 @@ class Index(Resource):
 @products.param("id", "Product identifier")
 @products.response(404, "Product not found")
 class Id(Resource):
+    @products.doc("Find product")
     @products.marshal_with(model)
     @admin_verify(products)
     def get(self, id: int):
@@ -73,6 +78,7 @@ class Id(Resource):
 
         return product.format()
 
+    @products.doc("Update product")
     @admin_verify(products)
     def put(self, id: int):
         req = request.get_json()
@@ -93,6 +99,7 @@ class Id(Resource):
 
         return {"message": "Product updated"}
 
+    @products.doc("Delete product")
     @admin_verify(products)
     def delete(self, id: int):
         product = Product.query.filter_by(id=id).first()

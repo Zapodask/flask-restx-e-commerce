@@ -12,6 +12,7 @@ from src.swagger.paginate import paginate_model
 
 addresses = Namespace("Addresses", "Addresses routes", path="/addresses")
 
+
 model = marshall_address_model(addresses)
 
 list_model = paginate_model(addresses, model)
