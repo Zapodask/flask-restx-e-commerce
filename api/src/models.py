@@ -1,6 +1,9 @@
 from flask_restx import abort
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+from os import getenv
+
+from src.utils.calcPortage import calc_portage
 
 
 db = SQLAlchemy()
@@ -176,7 +179,10 @@ class Order(db.Model):
     __tablename__ = "order"
 
     id = db.Column(db.Integer, primary_key=True)
-    total = db.Column(db.Float)
+    total_value = db.Column(db.Float, nullable=False)
+    total_portage = db.Column(db.Float, nullable=False)
+    deadline = db.Column(db.Integer, nullable=False)
+    total = db.Column(db.Float, nullable=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
@@ -193,25 +199,36 @@ class Order(db.Model):
     def __init__(self, user_id: int, address_id: int, products: list):
         self.user_id = user_id
 
-        Address.query.filter_by(id=address_id, user_id=user_id).first_or_404(
+        address = Address.query.filter_by(id=address_id, user_id=user_id).first_or_404(
             description=f"Address not found"
         )
 
         self.address_id = address_id
 
-        total = 0
+        total_value = 0
+        total_portage = 0
+        deadline = 0
 
         for product in products:
-            order_product = OrderProduct(product["quantity"], product["product_id"])
+            order_product = OrderProduct(
+                product["quantity"],
+                product["product_id"],
+                address["cep"].replace("-", ""),
+            )
 
-            total += order_product.subtotal
+            total_value += order_product.subtotal
+            total_portage += order_product.portage
+            deadline += order_product.deadline
 
             self.products.append(order_product)
 
         for item in self.products:
             item.product.stock -= item.quantity
 
-        self.total = total
+        self.total_value = total_value
+        self.total_portage = total_portage
+        self.deadline = deadline / len(products)
+        self.total = total_value + total_portage
 
     def format(self):
         return {
@@ -229,10 +246,12 @@ class OrderProduct(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     quantity = db.Column(db.Integer, nullable=False)
     subtotal = db.Column(db.Float, nullable=False)
+    portage = db.Column(db.Float, nullable=False)
+    deadline = db.Column(db.Integer, nullable=False)
 
     product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
 
-    def __init__(self, quantity: int, product_id: int):
+    def __init__(self, quantity: int, product_id: int, to_cep: str):
         self.quantity = quantity
 
         product = Product.query.filter_by(id=product_id).first()
@@ -247,6 +266,20 @@ class OrderProduct(db.Model):
             abort(400, f"Product id {product_id} has only {product.stock}")
 
         self.product = product
+
+        portage = calc_portage(
+            "04510",
+            getenv("SHOP_CEP"),
+            to_cep,
+            product["weight"] * quantity,
+            1,
+            product["length"],
+            product["height"] * quantity,
+            product["width"],
+        )
+
+        self.portage = portage["valor"]
+        self.deadline = portage["prazo_entrega"]
 
         self.subtotal = product.price * quantity
 
