@@ -70,6 +70,22 @@ class Product(db.Model):
     description = db.Column(db.String)
     price = db.Column(db.Float)
     stock = db.Column(db.Integer)
+    weight = db.Column(
+        db.Float,
+        nullable=False,
+    )
+    length = db.Column(
+        db.Float,
+        nullable=False,
+    )
+    width = db.Column(
+        db.Float,
+        nullable=False,
+    )
+    height = db.Column(
+        db.Float,
+        nullable=False,
+    )
 
     order_product = db.relationship(
         "OrderProduct",
@@ -87,6 +103,10 @@ class Product(db.Model):
     def __init__(
         self,
         name: str,
+        weight: float,
+        length: float,
+        width: float,
+        height: float,
         description: str = None,
         price: float = None,
         stock: int = 0,
@@ -95,6 +115,10 @@ class Product(db.Model):
         self.description = description
         self.price = price
         self.stock = stock
+        self.weight = weight
+        self.length = length
+        self.width = width
+        self.height = height
 
     def format(self):
         imgs = []
