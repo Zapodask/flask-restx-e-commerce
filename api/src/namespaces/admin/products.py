@@ -42,6 +42,10 @@ class Index(Resource):
             description=req.get("description"),
             price=req.get("price"),
             stock=req.get("stock"),
+            weight=req.get("weight"),
+            length=req.get("length"),
+            width=req.get("width"),
+            height=req.get("height"),
         )
 
         if req["images"] and isinstance(req["images"], list):

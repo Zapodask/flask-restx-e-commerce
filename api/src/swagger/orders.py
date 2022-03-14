@@ -9,6 +9,9 @@ def order_model(ns: Namespace):
         "Order",
         {
             "id": fields.Integer(),
+            "total_value": fields.Float(),
+            "total_portage": fields.Float(),
+            "deadline": fields.Integer(),
             "total": fields.Float(),
             "user_id": fields.Integer(),
             "address": fields.Nested(marshall_address_model(ns)),
@@ -24,6 +27,8 @@ def order_product_model(ns: Namespace):
             "id": fields.Integer(),
             "quantity": fields.Integer(),
             "subtotal": fields.Float(),
+            "portage": fields.Float(),
+            "deadline": fields.Integer(),
             "product": fields.Nested(marshal_product_model(ns)),
         },
     )

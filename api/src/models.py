@@ -181,8 +181,8 @@ class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     total_value = db.Column(db.Float, nullable=False)
     total_portage = db.Column(db.Float, nullable=False)
-    deadline = db.Column(db.Integer, nullable=False)
     total = db.Column(db.Float, nullable=False)
+    deadline = db.Column(db.Integer, nullable=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
@@ -233,6 +233,9 @@ class Order(db.Model):
     def format(self):
         return {
             "id": self.id,
+            "total_value": self.total_value,
+            "total_portage": self.total_total,
+            "deadline": self.deadline,
             "total": self.total,
             "user_id": self.user_id,
             "address": self.address.format(),
@@ -288,6 +291,8 @@ class OrderProduct(db.Model):
             "id": self.id,
             "quantity": self.quantity,
             "subtotal": self.subtotal,
+            "portage": self.portage,
+            "deadline": self.deadline,
             "product": self.product.format(),
         }
 
