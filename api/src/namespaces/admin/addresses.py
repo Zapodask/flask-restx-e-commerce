@@ -1,16 +1,15 @@
 from flask_restx import Namespace, Resource
 from flask import request
-from flask_jwt_extended import get_jwt_identity
 
 from src.models import Address, db
 
-from src.decorators.auth import auth_verify
+from src.decorators.auth import admin_verify
 from src.utils.paginate import paginate
 from src.swagger.addresses import address_model, marshall_address_model
 from src.swagger.paginate import paginate_model
 
 
-addresses = Namespace("Addresses", "Addresses routes", path="/addresses")
+addresses = Namespace("Admin addresses", "Admin addresses routes", path="/addresses")
 
 
 model = marshall_address_model(addresses)
@@ -25,28 +24,24 @@ class Index(Resource):
     @addresses.doc("List addresses")
     @addresses.marshal_list_with(list_model)
     @addresses.response(404, "No addresses were found")
-    @auth_verify(addresses)
+    @admin_verify(addresses)
     def get(self):
-        """Find all user addresses"""
+        """Find all addresses"""
         args = request.args
         page = args.get("page")
         per_page = args.get("per_page")
 
-        user_id = get_jwt_identity()
-
-        return paginate(Address.query.filter_by(user_id=user_id), page, per_page)
+        return paginate(Address.query, page, per_page)
 
     @addresses.doc("Create address")
     @addresses.expect(expect_model)
-    @auth_verify(addresses)
+    @admin_verify(addresses)
     def post(self):
         """Create a new address"""
-        user_id = get_jwt_identity()
-
         req = request.get_json()
 
         address = Address(
-            user_id=user_id,
+            user_id=req.get("user_id"),
             cep=req.get("cep"),
             state=req.get("state"),
             city=req.get("city"),
@@ -68,24 +63,20 @@ class Index(Resource):
 class Id(Resource):
     @addresses.doc("Find one address")
     @addresses.marshal_with(model)
-    @auth_verify(addresses)
+    @admin_verify(addresses)
     def get(self, id):
         """Find one address"""
-        user_id = get_jwt_identity()
-
-        return Address.query.filter_by(id=id, user_id=user_id).first_or_404(
+        return Address.query.filter_by(id=id).first_or_404(
             description=f"Address not found"
         )
 
     @addresses.doc("Update address")
-    @auth_verify(addresses)
+    @admin_verify(addresses)
     def put(self, id):
         """Update address"""
-        user_id = get_jwt_identity()
-
         req = request.get_json()
 
-        address = Address.query.filter_by(id=id, user_id=user_id).first_or_404(
+        address = Address.query.filter_by(id=id).first_or_404(
             description=f"Address not found"
         )
 
@@ -116,12 +107,10 @@ class Id(Resource):
         return {"message": "Address updated"}
 
     @addresses.doc("Delete address")
-    @auth_verify(addresses)
+    @admin_verify(addresses)
     def delete(self, id):
         """Delete address"""
-        user_id = get_jwt_identity()
-
-        address = Address.query.filter_by(id=id, user_id=user_id).first_or_404(
+        address = Address.query.filter_by(id=id).first_or_404(
             description=f"Address not found"
         )
 
