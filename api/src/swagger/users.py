@@ -7,9 +7,10 @@ def user_model(ns: Namespace):
     return ns.model(
         "User",
         {
-            "name": fields.String(),
-            "surname": fields.String(),
-            "email": fields.String(),
+            "name": fields.String(required=True),
+            "surname": fields.String(required=True),
+            "email": fields.String(required=True),
+            "role": fields.String(required=True),
         },
     )
 

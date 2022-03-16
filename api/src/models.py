@@ -18,6 +18,7 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
     role = db.Column(db.String, nullable=False)
+    cpf = db.Column(db.String(11), nullable=False)
 
     orders = db.relationship(
         "Order",
@@ -37,6 +38,7 @@ class User(db.Model):
         surname: str,
         email: str,
         password: str,
+        cpf: str,
         role: str = "client",
     ):
         self.name = name
@@ -44,6 +46,7 @@ class User(db.Model):
         self.email = email
         self.hash_password(password)
         self.role = role
+        self.cpf = cpf
 
     def format(self):
         return {
@@ -52,6 +55,7 @@ class User(db.Model):
             "surname": self.surname,
             "email": self.email,
             "role": self.role,
+            "cpf": self.cpf,
         }
 
     def hash_password(self, password):
@@ -213,7 +217,7 @@ class Order(db.Model):
             order_product = OrderProduct(
                 product["quantity"],
                 product["product_id"],
-                address["cep"].replace("-", ""),
+                address.cep,
             )
 
             total_value += order_product.subtotal
@@ -234,7 +238,7 @@ class Order(db.Model):
         return {
             "id": self.id,
             "total_value": self.total_value,
-            "total_portage": self.total_total,
+            "total_portage": self.total_portage,
             "deadline": self.deadline,
             "total": self.total,
             "user_id": self.user_id,
@@ -273,16 +277,16 @@ class OrderProduct(db.Model):
         portage = calc_portage(
             "04510",
             getenv("SHOP_CEP"),
-            to_cep,
-            product["weight"] * quantity,
+            to_cep.replace("-", ""),
+            product.weight * quantity,
             1,
-            product["length"],
-            product["height"] * quantity,
-            product["width"],
+            product.length,
+            product.height * quantity,
+            product.width,
         )
 
-        self.portage = portage["valor"]
-        self.deadline = portage["prazo_entrega"]
+        self.portage = float(portage["valor"].replace(",", "."))
+        self.deadline = int(portage["prazo_entrega"])
 
         self.subtotal = product.price * quantity
 
